@@ -30,10 +30,7 @@ Feature: Pets management
     |54 | pomelo | available | Dogs     | url1,url2   | tag1,tag2 |
     When I update the following data in the pet
     |id | name   | status    | category | photoUrls   | tags      |
-    |83 | pomelo | sold      | Dogs     | url1,url2   | tag1,tag2 |
+    |54 | pomelo | sold      | Dogs     | url1,url2   | tag1,tag2 |
     Then the response status code is 200
     And the response contains the pet data
     And the pet data in the response matches with the updated pet data
-
-
-
