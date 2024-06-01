@@ -1,7 +1,8 @@
-from locust import HttpUser, task, between
+from locust import HttpUser, between, task
+
+from api_tests.features.steps.endpoints.pet_endpoints import PetEndpoints
 from api_tests.features.steps.endpoints.store_endpoints import StoreEndpoints
 from api_tests.features.steps.endpoints.user_endpoints import UserEndpoints
-from api_tests.features.steps.endpoints.pet_endpoints import PetEndpoints
 from api_tests.features.steps.steps_utils import get_config
 
 
@@ -45,7 +46,7 @@ class PetStore(HttpUser):
     @task
     def test_udpate_pet(self):
         update_pet_endpoint = self.pet_endpoint.pet_endpoint
-        data = {"id": 53,
+        data = {"id": 5,
                 "name": 'Cangrejo',
                 "category": {"id": 1, "name": 'Dogs'},
                 "photoUrls": ['url1', 'url2'],
@@ -106,6 +107,3 @@ class PetStore(HttpUser):
         with self.client.get(login_endpoint.format(user_name, password), catch_response=True) as response:
             if response.status_code == 400:
                 response.success()
-
-
-

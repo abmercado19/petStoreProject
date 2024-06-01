@@ -1,15 +1,16 @@
 import os
+
 import requests
 
-from api_tests.features.steps.steps_utils import tags_mapping
 from api_tests.features.steps.endpoints.endpoints_utils import base_url
+from api_tests.features.steps.steps_utils import tags_mapping
 
 
 class PetEndpoints:
 
     def __init__(self):
         self.get_pet_by_id_endpoint = os.path.join(base_url, "pet/{}")
-        self.pet_endpoint = os.path.join(base_url, "pet/")
+        self.pet_endpoint = os.path.join(base_url, "pet")
 
     def get_pet_by_id(self, pet_id):
         response = requests.get(self.get_pet_by_id_endpoint.format(pet_id))
@@ -43,4 +44,3 @@ class PetEndpoints:
         for tag in pet_tags_names:
             pet_tags.append({"id": tags_mapping[tag], "name": tag})
         return pet_tags
-
