@@ -1,7 +1,4 @@
 
-def before_all(context):
-    context.base_url = "http://localhost:8080/api/v3/"
-
 
 def before_scenario(context, scenario):
     print("-" * 40)

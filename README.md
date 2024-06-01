@@ -24,6 +24,13 @@ From root project folder execute the following command: ```pipenv install```
 
 - Once the execution is finished, you can find the report in reports/behave_report.html
 
+### To execute api tests using tags:
+
+- Each api test has a tag. To execute only the test having a specific tag, execute the following command:
+
+    ```behave ./api_tests/features -f behave_html_formatter:HTMLFormatter -o reports/behave_report.html -t <TAG>```
+
+    where ```<TAG>``` is the tag of the test you want to execute. Eg: @PET
 ### To execute locust performance tests:
 
 - Ensure the Swagger Petstore Sample server is running. 

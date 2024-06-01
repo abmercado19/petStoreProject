@@ -1,17 +1,7 @@
 from steps_utils import get_config
-import json
-import os
 import logging
 from behave import *
-import requests
-
-
-@given("the valid endpoint to login")
-def define_endpoint_to_login(context):
-    """
-    :param context: behave.runner.Context
-    """
-    context.login_endpoint = os.path.join(context.base_url, "user/login")
+from endpoints.user_endpoints import UserEndpoints
 
 
 @when("I login with a valid user and password")
@@ -22,8 +12,8 @@ def login_with_valid_data(context):
     config = get_config()
     user_name = config['valid_user']['user_name']
     password = config['valid_user']['password']
-    data = {'user_name': user_name, 'password': password}
-    context.response = requests.get(context.login_endpoint, data=json.dumps(data))
+    user_endpoint = UserEndpoints()
+    context.response = user_endpoint.login_user(user_name, password)
 
 
 @step("the response contains the user session")
@@ -46,5 +36,5 @@ def login_with_invalid_user_and_password(context):
     config = get_config()
     user_name = config['invalid_user']['user_name']
     password = config['invalid_user']['password']
-    data = {'user_name': user_name, 'password': password}
-    context.response = requests.get(context.login_endpoint, data=json.dumps(data))
+    user_endpoint = UserEndpoints()
+    context.response = user_endpoint.login_user(user_name, password)

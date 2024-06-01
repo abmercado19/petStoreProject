@@ -1,15 +1,7 @@
-import os
-import requests
 import logging
 from behave import *
 
-
-@given("the valid endpoint to place an order")
-def define_endpoint_to_place_an_order(context):
-    """
-    :param context: behave.runner.Context
-    """
-    context.place_order_endpoint = os.path.join(context.base_url, "store/order")
+from api_tests.features.steps.endpoints.store_endpoints import StoreEndpoints
 
 
 @when("I create the order with the following data")
@@ -25,18 +17,14 @@ def create_order(context):
         context.order_ship_date = row['shipDate']
         context.order_status = row['status']
         context.order_complete = row['complete']
-        data = {"id": context.order_id,
-                "petId": context.pet_id,
-                "quantity": context.order_quantity,
-                "shipDate": context.order_ship_date,
-                "status": context.order_status,
-                "complete": context.order_complete
-                }
-        context.response = requests.post(context.place_order_endpoint, json=data)
+        store_endpoint = StoreEndpoints()
+        context.response = store_endpoint.create_order(context.order_id, context.pet_id, context.order_quantity,
+                                                       context.order_ship_date, context.order_status,
+                                                       context.order_complete)
 
 
 @step("the response contains the order data")
-def step_impl(context):
+def verify_order_data_is_displayed(context):
     """
     :param context: behave.runner.Context
     """
@@ -71,3 +59,13 @@ def verify_order_data_matches_with_data_added(context):
     assert str(response_data['complete']).lower() == str(context.order_complete).lower(), \
         "Complete in response is {} and it is not matching with the added " \
         "complete {}".format(response_data['complete'], context.order_complete)
+
+
+@when("I retrieve the order with the id {order_id}")
+def retrieve_order_with_specific_id(context, order_id):
+    """
+    :param context: behave.runner.Context
+    :param order_id: order id
+    """
+    store_endpoint = StoreEndpoints()
+    context.response = store_endpoint.get_order_by_id(order_id)

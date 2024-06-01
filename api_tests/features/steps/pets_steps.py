@@ -1,20 +1,8 @@
-import json
+
 import logging
-import os
-import requests
 from behave import *
-from steps_utils import categories_mapping, tags_mapping
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
-@given("the valid endpoint to get a pet")
-def define_endpoint_to_get_a_pet(context):
-    """
-    :param context: behave.runner.Context
-    """
-    context.get_pet_by_id_endpoint = os.path.join(context.base_url, "pet/{}")
+from steps_utils import categories_mapping
+from endpoints.pet_endpoints import PetEndpoints
 
 
 @when("I retrieve the pet with id {pet_id}")
@@ -23,7 +11,8 @@ def retrieve_pet_with_specific_id(context, pet_id):
     :param context: behave.runner.Context
     :param pet_id:
     """
-    context.response = requests.get(context.get_pet_by_id_endpoint.format(pet_id))
+    pet_endpoints = PetEndpoints()
+    context.response = pet_endpoints.get_pet_by_id(pet_id)
 
 
 @step("the response contains the pet data")
@@ -42,15 +31,7 @@ def verify_pet_data_is_displayed(context):
     logging.info("Pet information was retrieved successfully")
 
 
-@given("the valid endpoint to create a pet")
-def define_endpoint_to_create_a_pet(context):
-    """
-    :param context: behave.runner.Context
-    """
-    context.create_pet_endpoint = os.path.join(context.base_url, "pet/")
-
-
-@when("I create a pet with the following data")
+@step("I create a pet with the following data")
 def create_pet(context):
     """
     :type context: behave.runner.Context
@@ -63,21 +44,16 @@ def create_pet(context):
         context.pet_category_id = categories_mapping[context.pet_category_name]
         context.pet_status = row['status']
         context.pet_photo_urls = row['photoUrls'].split(',')
-        pet_tags_in_table = row['tags'].split(',')
-        context.pet_tags = []
-        for tag in pet_tags_in_table:
-            context.pet_tags.append({"id": tags_mapping[tag], "name": tag})
-        data = {"id": context.pet_id,
-                "name": context.pet_name,
-                "category": {"id": context.pet_category_id, "name": context.pet_category_name},
-                "photoUrls": context.pet_photo_urls,
-                "tags": context.pet_tags,
-                "status": context.pet_status
-                }
-        context.response = requests.post(context.create_pet_endpoint, json=data)
+        pet_tags = row['tags'].split(',')
+        pet_endpoint = PetEndpoints()
+        context.pet_tags = pet_endpoint.get_pet_tags_with_ids(pet_tags)
+        context.response = pet_endpoint.create_pet(context.pet_id, context.pet_name, context.pet_category_id,
+                                                   context.pet_category_name, context.pet_status,
+                                                   context.pet_photo_urls, context.pet_tags)
 
 
 @step("the pet data in the response matches with the added pet data")
+@step("the pet data in the response matches with the updated pet data")
 def verify_pet_data_matches_with_data_added(context):
     """
     :param context: behave.runner.Context
@@ -104,3 +80,24 @@ def verify_pet_data_matches_with_data_added(context):
     assert response_data['status'] == context.pet_status, \
         "Status in response is {} and it is not matching with the added status {}".format(response_data['status'],
                                                                                           context.pet_status)
+
+
+@step("I update the following data in the pet")
+def udpate_pet_data(context):
+    """
+    :param context: behave.runner.Context
+    """
+    table_data = context.table
+    for row in table_data:
+        context.pet_id = row['id']
+        context.pet_name = row['name']
+        context.pet_category_name = row['category']
+        context.pet_category_id = categories_mapping[context.pet_category_name]
+        context.pet_status = row['status']
+        context.pet_photo_urls = row['photoUrls'].split(',')
+        pet_endpoint = PetEndpoints()
+        pet_tags = row['tags'].split(',')
+        context.pet_tags = pet_endpoint.get_pet_tags_with_ids(pet_tags)
+        context.response = pet_endpoint.update_pet(context.pet_id, context.pet_name, context.pet_category_id,
+                                                   context.pet_category_name, context.pet_status,
+                                                   context.pet_photo_urls, context.pet_tags)
